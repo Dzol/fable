@@ -1,0 +1,11 @@
+{application, 'fable',
+ [{description, "A small LISP in Erlang"},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications,
+   [kernel,
+    stdlib
+   ]},
+  {env,[]},
+  {modules, []}
+ ]}.
