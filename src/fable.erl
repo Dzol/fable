@@ -5,6 +5,7 @@
 %% ===================================================================
 
 -module(fable).
+-export([tree/1]).
 -export([read/1]).
 -import(lists, [reverse/1]).
 
@@ -14,6 +15,31 @@
 %% -------------------------------------------------------------------
 %% Interface
 %% -------------------------------------------------------------------
+
+tree(S) ->
+    {[], T} = tree(S, []),
+    T.
+
+%% `++/2` seems more readable.
+tree([], S) ->
+    {[], S};
+tree([open|M], S) ->
+    {N, T} = tree(M, []),
+    tree(N, S ++ [T]);
+tree([close|M], S) ->
+    {M, S};
+tree([X|M], S) ->
+    tree(M, S ++ [X]).
+
+%% tree([], S) ->
+%%     {[], reverse(S)};
+%% tree([open|M], S) ->
+%%     {N, T} = tree(M, []),
+%%     tree(N, [T|S]);
+%% tree([close|M], S) ->
+%%     {M, reverse(S)};
+%% tree([X|M], S) ->
+%%     tree(M, [X|S]).
 
 read("") ->
     [];

@@ -22,10 +22,16 @@ all() ->
 
 groups() ->
 
-    [ {positive, [], success()}
+    [ {positive, [], forest() ++ read()}
     ].
 
-success() ->
+
+forest() ->
+    [ tree
+    , forest
+    ].
+
+read() ->
 
     [ none
     , sentinal
@@ -41,6 +47,24 @@ success() ->
 %% -------------------------------------------------------------------
 %% Tests
 %% -------------------------------------------------------------------
+
+tree(_) ->
+    Tree = [open,
+             open, close,
+             open, 1024, "foo", close,
+             open,
+              open,close,
+             close,
+            close],
+    [ [[], [1024, "foo"], [[]]] ] = fable:tree(Tree).
+
+forest(_) ->
+    Forest = [open, close,
+              open,
+               open, close,
+              close,
+              open, close],
+    [ [], [[]], [] ] = fable:tree(Forest).
 
 none(_) ->
     [] = fable:read("").
