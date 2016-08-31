@@ -5,8 +5,8 @@
 %% ===================================================================
 
 -module(fable).
--export([tree/1]).
--export([read/1]).
+-export([parse/1]).
+-export([scan/1]).
 -import(lists, [reverse/1]).
 
 -define(SPACE, $\ ).
@@ -16,49 +16,49 @@
 %% Interface
 %% -------------------------------------------------------------------
 
-tree(S) ->
-    {[], T} = tree(S, []),
+parse(S) ->
+    {[], T} = parse(S, []),
     T.
 
 %% `++/2` seems more readable.
-tree([], S) ->
+parse([], S) ->
     {[], S};
-tree([open|M], S) ->
-    {N, T} = tree(M, []),
-    tree(N, S ++ [T]);
-tree([close|M], S) ->
+parse([open|M], S) ->
+    {N, T} = parse(M, []),
+    parse(N, S ++ [T]);
+parse([close|M], S) ->
     {M, S};
-tree([X|M], S) ->
-    tree(M, S ++ [X]).
+parse([X|M], S) ->
+    parse(M, S ++ [X]).
 
-%% tree([], S) ->
+%% parse([], S) ->
 %%     {[], reverse(S)};
-%% tree([open|M], S) ->
-%%     {N, T} = tree(M, []),
-%%     tree(N, [T|S]);
-%% tree([close|M], S) ->
+%% parse([open|M], S) ->
+%%     {N, T} = parse(M, []),
+%%     parse(N, [T|S]);
+%% parse([close|M], S) ->
 %%     {M, reverse(S)};
-%% tree([X|M], S) ->
-%%     tree(M, [X|S]).
+%% parse([X|M], S) ->
+%%     parse(M, [X|S]).
 
-read("") ->
+scan("") ->
     [];
-read([$(|Rest]) ->
-    [open|read(Rest)];
-read([$)|Rest]) ->
-    [close|read(Rest)];
-read([?SPACE|Rest]) ->
-    read(Rest);
-read([H|Rest])
+scan([$(|Rest]) ->
+    [open|scan(Rest)];
+scan([$)|Rest]) ->
+    [close|scan(Rest)];
+scan([?SPACE|Rest]) ->
+    scan(Rest);
+scan([H|Rest])
   when $! == H; $% == H; $* == H; $+ == H; $- == H;
        $< == H; $= == H; $> == H; $^ == H; $~ == H ->
-    [operator(Rest, H)|read(Rest)];
-read([H|Rest]) when $0 =< H, H =< $9 ->
+    [operator(Rest, H)|scan(Rest)];
+scan([H|Rest]) when $0 =< H, H =< $9 ->
     {S, More} = integer(Rest, [H]),
-    [S|read(More)];
-read([H|Rest]) when $a =< H, H =< $z; $A =< H, H =< $Z ->
+    [S|scan(More)];
+scan([H|Rest]) when $a =< H, H =< $z; $A =< H, H =< $Z ->
     {S, More} = symbol(Rest, [H]),
-    [S|read(More)].
+    [S|scan(More)].
 
 
 %% -------------------------------------------------------------------
