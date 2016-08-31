@@ -75,59 +75,59 @@ scan([H|Rest]) when $a =< H, H =< $z; $A =< H, H =< $Z ->
 %% really quite instructive. This discusses our represtentation a
 %% little.  To illustrate: variable `S` from the procedure's head
 %% looks something like `[open, "foo", open, "bar", close, close]`
-%% whose structure is completeley flat, while `T` from the procedure's
+%% whose structure is completeley flat, while `Tree` from the procedure's
 %% body looks something like `["foo", ["bar"]]`. So one way to look at
 %% the `parse` procedure is to say that it builds a tree structure
 %% from a flat structure. A list structure is a good representation
 %% for a LISP list because LISP lists have arbitrary size so we can
 %% build a representation for them by gradually building an Erlang
 %% list.
-parse(S) ->
+parse(Tokens) ->
     %% The tuple returned gives us a list of remaining tokens, `[]`,
-    %% and the tree, `T`. The symbol for the empty list ,`[]`, along
-    %% with the match operator, `=`, are a kind of assertion that
-    %% there are no more remaining tokens. We pass the `parse/2`
-    %% procedure a flat list of tokens, `S`, and an empty list which
-    %% is the representation for our initial tree which is simple a
-    %% list of lists.
-    {[], T} = parse(S, []),
+    %% and the tree, `Tree`. The symbol for the empty list ,`[]`,
+    %% along with the match operator, `=`, are a kind of assertion
+    %% that there are no more remaining tokens. We pass the `parse/2`
+    %% procedure a flat list of tokens, `Tokens`, and an empty list
+    %% which is the representation for our initial tree which is
+    %% simple a list of lists.
+    {[], Tree} = parse(Tokens, []),
     %% At the end all we're really interested in is the tree. We
     %% return it here.
-    T.
+    Tree.
 
 %% @doc The first parameter is the list of remaining tokens and the
 %% second parameter is the tree that has been built so far. The tree
 %% is built top-down left-right.
-parse([], S) ->
+parse([], Tree) ->
     %% The empty list in the procedure's head above acts as a kind of
     %% assertion that we have no more tokens to parse. We return a
     %% tuple to keep all the return values of the `parse/2` procedure
     %% the same even though all we'd care about at this point is the
-    %% tree, `S`.
-    {[], S};
-parse([open|M], S) ->
+    %% tree, `Tree`.
+    {[], Tree};
+parse([open|Tokens], Parent) ->
     %% The pattern above indicates that we are entering a LISP list in
     %% our flat list of tokens. Below we parse the remaining tokens
     %% but start with a new tree, the `[]` as the second argument to
     %% our recursive call to `parse/2`, as we want to build a child
-    %% tree, `T`.
-    {N, T} = parse(M, []),
-    %% Once we've got a complete child tree into `T`, which may itself
-    %% have its own children, we insert the child tree `T` into the
-    %% parent tree `S` by appending them (as they are lists in our
+    %% tree, `Child`.
+    {Remaining, Child} = parse(Tokens, []),
+    %% Once we've got a complete child tree into `Child`, which may itself
+    %% have its own children, we insert the child tree `Child` into the
+    %% parent tree `Parent` by appending them (as they are lists in our
     %% represtentation). The call to `parse/2` will proceed with the
     %% remaining tokens and the most recent tree.
-    parse(N, S ++ [T]);
-parse([close|M], S) ->
+    parse(Remaining, Parent ++ [Child]);
+parse([close|Tokens], Parent) ->
     %% When we see the `close` symbol we return the remaining tokens
-    %% in `M` and the tree we've built so far which might be a tree of
+    %% in `Tokens` and the tree we've built so far which might be a tree of
     %% depth one (in other words "a flat tree/list") but might not be.
-    {M, S};
-parse([X|M], S) ->
-    %% When we see any other token, `X`, we just append it (or insert
-    %% it) into the tree `S`. These symbols don't give us any
-    %% information about structure we can introduce.
-    parse(M, S ++ [X]).
+    {Tokens, Parent};
+parse([Sibling|Tokens], Tree) ->
+    %% When we see any other token, `Sibling`, we just append it (or
+    %% insert it) into the tree `Parent`. These symbols don't give us
+    %% any information about structure we can introduce.
+    parse(Tokens, Tree ++ [Sibling]).
 
 
 %% -------------------------------------------------------------------
