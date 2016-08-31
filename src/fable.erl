@@ -37,10 +37,10 @@ scan([$(|Rest]) ->
     %% An opening parenthesis, `$(`, produces the symbol `open`.
     [open|scan(Rest)];
 scan([$)|Rest]) ->
-    %% An closing parenthesis, `$(`, produces the symbol `close`.
+    %% An closing parenthesis, `$)`, produces the symbol `close`.
     [close|scan(Rest)];
 scan([?SPACE|Rest]) ->
-    %% Space(s) is ignored: we should also ignore other white-space!
+    %% Spaces are ignored: we should also ignore other white-space!
     scan(Rest);
 scan([H|Rest])
   when $! == H; $% == H; $* == H; $+ == H; $- == H;
@@ -57,15 +57,16 @@ scan([H|Rest])
 scan([H|Rest]) when $0 =< H, H =< $9 ->
     %% When we see a digit we collect the like characters of an
     %% integer by calling the `integer` procedure and then advance the
-    %% scanner. This really saves us work if we'd combined the scanner
-    %% and parser (but maybe that's what recursive-decent parses make
+    %% scanner past the characters that make up the integer. This
+    %% really saves us complexity if we'd combined the scanner and
+    %% parser (but maybe that's what recursive-decent parses make
     %% tidy).
     {S, More} = integer(Rest, [H]),
     [S|scan(More)];
 scan([H|Rest]) when $a =< H, H =< $z; $A =< H, H =< $Z ->
     %% When we see a letter we collect the like characters of a LISP
     %% symbol or atom by calling `symbol` and then advance the
-    %% scanner.
+    %% scanner past the characters that make up the symbol.
     {S, More} = symbol(Rest, [H]),
     [S|scan(More)].
 
@@ -75,15 +76,15 @@ scan([H|Rest]) when $a =< H, H =< $z; $A =< H, H =< $Z ->
 %% (the lexical scanner), this list has nested lists to build a kind
 %% of tree structure. The test cases called `tree` and `forest` are
 %% really quite instructive. This discusses our represtentation a
-%% little.  To illustrate: variable `S` from the procedure's head
+%% little.  To illustrate: variable `Tokens` from the procedure's head
 %% looks something like `[open, "foo", open, "bar", close, close]`
-%% whose structure is completeley flat, while `Tree` from the procedure's
-%% body looks something like `["foo", ["bar"]]`. So one way to look at
-%% the `parse` procedure is to say that it builds a tree structure
-%% from a flat structure. A list structure is a good representation
-%% for a LISP list because LISP lists have arbitrary size so we can
-%% build a representation for them by gradually building an Erlang
-%% list.
+%% whose structure is completeley flat, while `Tree` from the
+%% procedure's body looks something like `["foo", ["bar"]]` with one
+%% list inside the other. So one way to look at the `parse` procedure
+%% is to say that it builds a tree structure from a flat structure. A
+%% list structure is a good representation for a LISP list because
+%% LISP lists have arbitrary size so we can build a representation for
+%% them by gradually building an Erlang list.
 parse(Tokens) ->
     %% The tuple returned gives us a list of remaining tokens, `[]`,
     %% and the tree, `Tree`. The symbol for the empty list ,`[]`,
@@ -114,20 +115,21 @@ parse([open|Tokens], Parent) ->
     %% our recursive call to `parse/2`, as we want to build a child
     %% tree, `Child`.
     {Remaining, Child} = parse(Tokens, []),
-    %% Once we've got a complete child tree into `Child`, which may itself
-    %% have its own children, we insert the child tree `Child` into the
-    %% parent tree `Parent` by appending them (as they are lists in our
-    %% represtentation). The call to `parse/2` will proceed with the
-    %% remaining tokens and the most recent tree.
+    %% Once we've got a complete child tree into `Child`, which may
+    %% itself have its own children, we insert the child tree `Child`
+    %% into the parent tree `Parent` by appending them (as they are
+    %% lists in our represtentation). The call to `parse/2` will
+    %% proceed with the remaining tokens and the most recent tree.
     parse(Remaining, Parent ++ [Child]);
 parse([close|Tokens], Parent) ->
     %% When we see the `close` symbol we return the remaining tokens
-    %% in `Tokens` and the tree we've built so far which might be a tree of
-    %% depth one (in other words "a flat tree/list") but might not be.
+    %% in `Tokens` and the tree we've built so far which might be a
+    %% tree of depth one (in other words "a flat tree/list") but might
+    %% not be.
     {Tokens, Parent};
 parse([Sibling|Tokens], Tree) ->
     %% When we see any other token, `Sibling`, we just append it (or
-    %% insert it) into the tree `Parent`. These symbols don't give us
+    %% insert it) into the tree `Tree`. These symbols don't give us
     %% any information about structure we can introduce.
     parse(Tokens, Tree ++ [Sibling]).
 
