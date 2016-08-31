@@ -45,12 +45,14 @@ scan([?SPACE|Rest]) ->
 scan([H|Rest])
   when $! == H; $% == H; $* == H; $+ == H; $- == H;
        $< == H; $= == H; $> == H; $^ == H; $~ == H ->
-    %% When we see one of a selection of operators then we call the
-    %% `operator` procedure to advance us one character which must be
-    %% a SPACE character (see the definition below). In other words we
-    %% don't allow LISP symbols or atoms to start with one of the
-    %% operators we recognise though they could start with one we
-    %% don't recognise.
+    %% When we see one of a selection of single character operators
+    %% then we call the `operator` procedure to advance us one
+    %% character which must be a SPACE character (see the definition
+    %% below). In other words we don't allow LISP symbols or atoms to
+    %% start with one of the operators we recognise though they could
+    %% start with one we don't recognise. This clause is here because
+    %% with the clause for digits and letters below we would not get
+    %% the operator chararacters.
     [operator(Rest, H)|scan(Rest)];
 scan([H|Rest]) when $0 =< H, H =< $9 ->
     %% When we see a digit we collect the like characters of an
