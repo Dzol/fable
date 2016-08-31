@@ -22,7 +22,12 @@ all() ->
 
 groups() ->
 
-    [ {positive, [], [integration] ++ forest() ++ scan()}
+    [ {positive, [], integration() ++ forest() ++ scan()}
+    ].
+
+integration() ->
+    [ integration
+    , example
     ].
 
 forest() ->
@@ -50,6 +55,10 @@ scan() ->
 integration(_) ->
     Tree = fable:scan("(() (+ 1024 foo) (()))"),
     [ [[], ["+", 1024, "foo"], [[]]] ] = fable:parse(Tree).
+
+example(_) ->
+    Tree = fable:scan("(first (list 1 (+ 2 3) 9))"),
+    [ ["first", ["list", 1, ["+", 2, 3], 9]] ] = fable:parse(Tree).
 
 tree(_) ->
     Tree = [open,
