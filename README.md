@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Dzol/Fable.svg?branch=master)](https://travis-ci.org/Dzol/Fable)
+
 # Fable
 
 A small LISP in Erlang.
