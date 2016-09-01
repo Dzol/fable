@@ -5,8 +5,9 @@
 %% ===================================================================
 
 -module(fable).
--export([parse/1]).
 -export([scan/1]).
+-export([parse/1]).
+-export([evaluate/1]).
 -import(lists, [reverse/1]).
 
 -define(SPACE, $\ ).
@@ -15,6 +16,30 @@
 %% -------------------------------------------------------------------
 %% Interface
 %% -------------------------------------------------------------------
+
+evaluate([ "+" | Tl]) ->
+    add(Tl);
+evaluate([ "*" | Tl]) ->
+    times(Tl);
+evaluate([ "quote" | Tl ]) ->
+    quote(Tl).
+
+add([]) ->
+    0;
+add([ N | Tl ]) when is_integer(N) ->
+    N + add(Tl);
+add([ Hd | Tl ]) when is_list(Hd) ->
+    evaluate(Hd) + add(Tl).
+
+times([]) ->
+    1;
+times([ N | Tl ]) when is_integer(N) ->
+    N * times(Tl);
+times([ Hd | Tl ]) when is_list(Hd) ->
+    evaluate(Hd) * times(Tl).
+
+quote([ X ]) ->
+    X.
 
 %% @doc The `scan/1` procedure takes a string of characters and
 %% produces a list of tokens which are more amenable to processing,
@@ -33,7 +58,7 @@ scan("") ->
     %% When we see an empty string then we know there are no tokens in
     %% it so we return the empty list.
     [];
-scan([$(|Rest]) ->
+scan([ $( | Rest ]) ->
     %% An opening parenthesis, `$(`, produces the symbol `open`.
     [open|scan(Rest)];
 scan([$)|Rest]) ->

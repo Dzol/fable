@@ -17,20 +17,30 @@
 
 all() ->
 
-    [ {group, positive}
+    [ {group, interpreter}
+    , {group, positive}
     ].
 
 groups() ->
 
     [ {positive, [], integration() ++ forest() ++ scan()}
+    , {interpreter, [], interpreter()}
+    ].
+
+interpreter() ->
+
+    [ simple
+    , quote
     ].
 
 integration() ->
+
     [ integration
     , example
     ].
 
 forest() ->
+
     [ tree
     , forest
     ].
@@ -51,6 +61,20 @@ scan() ->
 %% -------------------------------------------------------------------
 %% Tests
 %% -------------------------------------------------------------------
+
+quote(_) ->
+    Q = ["+", 2, 3],
+    T = ["quote", Q],
+    Q = fable:evaluate(T),
+    5 = fable:evaluate(Q).
+
+simple(_) ->
+    Tree = [ "+"
+           , ["*", 1, 2]
+           , 3
+           , ["*", 16, 1]
+           ],
+    21 = fable:evaluate(Tree).
 
 integration(_) ->
     Tree = fable:scan("(() (+ 1024 foo) (()))"),
