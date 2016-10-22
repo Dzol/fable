@@ -4,6 +4,10 @@
 
 A small LISP in Erlang.
 
+## Why?
+
+Technical interview question with the [Recurse Center](https://www.recurse.com/) to learn about interpreters.
+
 ## Interesting Make Targets
 
 `make` will run the test suite.
