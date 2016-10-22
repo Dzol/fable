@@ -17,20 +17,18 @@
 
 all() ->
 
-    [ {group, interpreter}
-    , {group, positive}
+    [ {group, integration}
+    , {group, evaluate}
+    , {group, parse}
+    , {group, scan}
     ].
 
 groups() ->
 
-    [ {positive, [], integration() ++ forest() ++ scan()}
-    , {interpreter, [], interpreter()}
-    ].
-
-interpreter() ->
-
-    [ simple
-    , quote
+    [ {integration, [], integration()}
+    , {evaluate,    [], evaluate()}
+    , {parse,       [], parse()}
+    , {scan,        [], scan()}
     ].
 
 integration() ->
@@ -39,7 +37,13 @@ integration() ->
     , example
     ].
 
-forest() ->
+evaluate() ->
+
+    [ simple
+    , quote
+    ].
+
+parse() ->
 
     [ tree
     , forest
@@ -62,12 +66,6 @@ scan() ->
 %% Tests
 %% -------------------------------------------------------------------
 
-quote(_) ->
-    Q = ["+", 2, 3],
-    T = ["quote", Q],
-    Q = fable:evaluate(T),
-    5 = fable:evaluate(Q).
-
 simple(_) ->
     Tree = [ "+"
            , ["*", 1, 2]
@@ -75,6 +73,12 @@ simple(_) ->
            , ["*", 16, 1]
            ],
     21 = fable:evaluate(Tree).
+
+quote(_) ->
+    Q = ["+", 2, 3],
+    T = ["quote", Q],
+    Q = fable:evaluate(T),
+    5 = fable:evaluate(Q).
 
 integration(_) ->
     Tree = fable:scan("(() (+ 1024 foo) (()))"),
@@ -111,17 +115,17 @@ sentinal(_) ->
 spaced(_) ->
     [open, close] = fable:scan("( )").
 
-operator(_) ->
-    [open, [$!], 1024, 512, close] = fable:scan("(! 1024 512)").
+symbol(_) ->
+    [open, "foo", close] = fable:scan("(foo)").
 
 integer(_) ->
     [open, 1024, close] = fable:scan("(1024)").
 
-symbol(_) ->
-    [open, "foo", close] = fable:scan("(foo)").
-
 symbols(_) ->
     [open, "foo", "bar", "baz", close] = fable:scan("(foo bar baz)").
+
+operator(_) ->
+    [open, [$!], 1024, 512, close] = fable:scan("(! 1024 512)").
 
 nest(_) ->
     [open,
