@@ -19,6 +19,7 @@
 %% Interface
 %% -------------------------------------------------------------------
 
+-spec evaluate(tree()) -> result().
 evaluate([ "+" | Tl]) ->
     add(Tl);
 evaluate([ "*" | Tl]) ->
@@ -26,6 +27,7 @@ evaluate([ "*" | Tl]) ->
 evaluate([ "quote" | Tl ]) ->
     quote(Tl).
 
+-spec add(tree()) -> result().
 add([]) ->
     0;
 add([ N | Tl ]) when is_integer(N) ->
@@ -33,6 +35,7 @@ add([ N | Tl ]) when is_integer(N) ->
 add([ Hd | Tl ]) when is_list(Hd) ->
     evaluate(Hd) + add(Tl).
 
+-spec times(tree()) -> result().
 times([]) ->
     1;
 times([ N | Tl ]) when is_integer(N) ->
@@ -40,6 +43,7 @@ times([ N | Tl ]) when is_integer(N) ->
 times([ Hd | Tl ]) when is_list(Hd) ->
     evaluate(Hd) * times(Tl).
 
+-spec quote(tree()) -> result().
 quote([ X ]) ->
     X.
 
