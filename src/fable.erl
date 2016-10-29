@@ -67,13 +67,13 @@ scan("") ->
 scan([ $( | Rest ]) ->
     %% An opening parenthesis, `$(`, produces the symbol `open`.
     [open|scan(Rest)];
-scan([$)|Rest]) ->
+scan([ $) | Rest ]) ->
     %% An closing parenthesis, `$)`, produces the symbol `close`.
     [close|scan(Rest)];
-scan([?SPACE|Rest]) ->
+scan([ ?SPACE | Rest ]) ->
     %% Spaces are ignored: we should also ignore other white-space!
     scan(Rest);
-scan([H|Rest])
+scan([ H | Rest ])
   when $! == H; $% == H; $* == H; $+ == H; $- == H;
        $< == H; $= == H; $> == H; $^ == H; $~ == H ->
     %% When we see one of a selection of single character operators
@@ -85,7 +85,7 @@ scan([H|Rest])
     %% with the clause for digits and letters below we would not get
     %% the operator chararacters.
     [operator(Rest, H)|scan(Rest)];
-scan([H|Rest]) when $0 =< H, H =< $9 ->
+scan([ H | Rest ]) when $0 =< H, H =< $9 ->
     %% When we see a digit we collect the like characters of an
     %% integer by calling the `integer` procedure and then advance the
     %% scanner past the characters that make up the integer. This
@@ -94,7 +94,7 @@ scan([H|Rest]) when $0 =< H, H =< $9 ->
     %% tidy).
     {S, More} = integer(Rest, [H]),
     [S|scan(More)];
-scan([H|Rest]) when $a =< H, H =< $z; $A =< H, H =< $Z ->
+scan([ H | Rest ]) when $a =< H, H =< $z; $A =< H, H =< $Z ->
     %% When we see a letter we collect the like characters of a LISP
     %% symbol or atom by calling `symbol` and then advance the
     %% scanner past the characters that make up the symbol.
@@ -139,7 +139,7 @@ parse([], Tree) ->
     %% the same even though all we'd care about at this point is the
     %% tree, `Tree`.
     {[], Tree};
-parse([open|Tokens], Parent) ->
+parse([ open | Tokens ], Parent) ->
     %% The pattern above indicates that we are entering a LISP list in
     %% our flat list of tokens. Below we parse the remaining tokens
     %% but start with a new tree, the `[]` as the second argument to
@@ -152,13 +152,13 @@ parse([open|Tokens], Parent) ->
     %% lists in our represtentation). The call to `parse/2` will
     %% proceed with the remaining tokens and the most recent tree.
     parse(Remaining, Parent ++ [Child]);
-parse([close|Tokens], Parent) ->
+parse([ close | Tokens ], Parent) ->
     %% When we see the `close` symbol we return the remaining tokens
     %% in `Tokens` and the tree we've built so far which might be a
     %% tree of depth one (in other words "a flat tree/list") but might
     %% not be.
     {Tokens, Parent};
-parse([Sibling|Tokens], Tree) ->
+parse([ Sibling | Tokens ], Tree) ->
     %% When we see any other token, `Sibling`, we just append it (or
     %% insert it) into the tree `Tree`. These symbols don't give us
     %% any information about structure we can introduce.
