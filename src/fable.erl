@@ -60,6 +60,7 @@ quote([ X ]) ->
 %% interpreter or compiler with a procedure called `quote`). All these
 %% clauses push to the stack and press on with a recursive call to
 %% scan the remaining characters in the string.
+-spec scan(string()) -> [ 'open' | 'close' | integer() | string() ].
 scan("") ->
     %% When we see an empty string then we know there are no tokens in
     %% it so we return the empty list.
@@ -116,6 +117,8 @@ scan([ H | Rest ]) when $a =< H, H =< $z; $A =< H, H =< $Z ->
 %% list structure is a good representation for a LISP list because
 %% LISP lists have arbitrary size so we can build a representation for
 %% them by gradually building an Erlang list.
+-spec parse([ 'open' | 'close' | integer() | string() ]) ->
+                   [ [] | integer() | string() ].
 parse(Tokens) ->
     %% The tuple returned gives us a list of remaining tokens, `[]`,
     %% and the tree, `Tree`. The symbol for the empty list ,`[]`,
