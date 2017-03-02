@@ -2,4 +2,6 @@ language: erlang
 otp_release:
   - 18.2.1
 sudo: false
-script: "make"
+script:
+  - make test
+  - make type
