@@ -8,8 +8,6 @@ A small LISP in Erlang.
 
 Technical interview question with the [Recurse Center](https://www.recurse.com/) to learn about interpreters.
 
-<p><script async defer src="https://www.recurse-scout.com/loader.js?t=2443fbcd7027703f5da2a2cee9cc8935"></script></P>
-
 ## Interesting Make Targets
 
 `make` will run the test suite.
