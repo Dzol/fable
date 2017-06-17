@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Dzol/Fable.svg?branch=master)](https://travis-ci.org/Dzol/Fable)
+[![Build Status](https://travis-ci.org/Dzol/fable.svg?branch=master)](https://travis-ci.org/Dzol/fable)
 
 # Fable
 
